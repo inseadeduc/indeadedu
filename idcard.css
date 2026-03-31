@@ -161,14 +161,21 @@ body {
 }
 
 .label {
-    color: #000;
+    color: #000000;
 }
 
 .value {
-    color: #000;
+    color: #000000;
 }
 
 
+.valid-label {
+    color: white;
+}
+
+.valid-value {
+    color: white;
+}
 .barcode-container {
     margin-top: -16px;
     margin-bottom: 8px;

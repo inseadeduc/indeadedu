@@ -44,8 +44,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const { data: profileData, error: profileError } = await supabase
       .from("student_profiles")
       .select("*")
-      .eq("email", user.email)
-      .maybeSingle();
+      .eq("id", user.id)
+      .single();
 
     if (profileError) {
       console.log(profileError);

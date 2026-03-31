@@ -243,17 +243,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // 🔐 AUTH SIGNUP
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password
-    });
+const { data, error } = await supabase.auth.signUp({
+  email,
+  password
+});
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
+if (error) {
+  alert(error.message);
+  return;
+}
 
-    const userId = data.user.id;
+// 🔥 FIX
+if (!data.user) {
+  alert("Signup successful! Please login.");
+  window.location.href = "login.html";
+  return;
+}
+
+const userId = data.user.id;
+
+if (!userId) {
+  alert("Signup failed. Please check email confirmation.");
+  return;
+}
 
     // 📦 INSERT PROFILE
     const { error: profileError } = await supabase
@@ -288,13 +300,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
-localStorage.setItem("studentData", JSON.stringify({
-  name: document.getElementById("studentName").value,
-  image: photoSrc,
-  rollNo: rollNo,
-  finNo: finNo,
-  issueDate: issueDate
-}));
+// localStorage.setItem("studentData", JSON.stringify({
+//   name: document.getElementById("studentName").value,
+//   image: photoSrc,
+//   rollNo: rollNo,
+//   finNo: finNo,
+//   issueDate: issueDate
+// }));
 
     alert("Signup completed successfully");
     window.location.href = "login.html";
