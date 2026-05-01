@@ -1,96 +1,178 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  // 🔐 LOGIN CHECK
-  if (localStorage.getItem("isLoggedIn") !== "true") {
+  // ========= USER DATA LOAD =========
+  const user = JSON.parse(localStorage.getItem("studentData"));
+
+  if (!user) {
     window.location.href = "login.html";
     return;
   }
 
-  const data = JSON.parse(localStorage.getItem("studentData"));
-  if (!data) {
-    alert("No user data found. Please signup again.");
-    return;
+  // ========= PROFILE AUTO FILL =========
+  const fullName = user.name ? user.name.trim() : "";
+  const parts = fullName.split(" ");
+
+  const firstName = parts[0] || "";
+  const lastName = parts.slice(1).join(" ") || "";
+
+  if (document.getElementById("firstName"))
+    document.getElementById("firstName").value = firstName;
+
+  if (document.getElementById("lastName"))
+    document.getElementById("lastName").value = lastName;
+
+  if (document.getElementById("email"))
+    document.getElementById("email").value = user.email || "";
+
+  // profile image
+  if (user.image) {
+    const img1 = document.getElementById("profilePreview");
+    const img2 = document.getElementById("headerProfileImg");
+
+    if (img1) {
+      img1.src = user.image;
+      img1.style.display = "block";
+    }
+
+    if (img2) {
+      img2.src = user.image;
+      img2.style.display = "block";
+    }
   }
 
-  // ===== ELEMENTS =====
-  const img = document.getElementById("profileImage");
-  const editBtn = document.getElementById("editBtn");
-  const saveBtn = document.getElementById("saveBtn");
+  // ========= SECTION NAVIGATION =========
+  const links = document.querySelectorAll(".nav-link");
+  const sections = document.querySelectorAll(".content-section");
 
-  const fields = [
-    "profileName",
-    "profileEmail",
-    "profileDob",
-    "profilePassport",
-    "profileProgram",
-    "profileCourse",
-    "profileDuration"
-  ];
+  links.forEach(link => {
+    link.addEventListener("click", function (e) {
 
-  // ===== SHOW DATA =====
-  if (data.image && data.image.trim() !== "") {
-    img.src = data.image;
-  } else {
-    img.style.display = "none";
+      const page = this.dataset.page;
+
+      // HOME external page
+      if (this.getAttribute("href") === "index.html") {
+        return; // normal link allow
+      }
+
+      e.preventDefault();
+
+      sections.forEach(sec => sec.classList.remove("active"));
+
+      const target = document.getElementById(page);
+      if (target) target.classList.add("active");
+
+      const nav = document.getElementById("main-nav-dropdown");
+      if (nav) nav.classList.remove("show");
+    });
+  });
+
+  // ========= MENU TOGGLE =========
+  const menuBtn = document.getElementById("menu-toggle");
+  const nav = document.getElementById("main-nav-dropdown");
+
+  if (menuBtn && nav) {
+    menuBtn.addEventListener("click", () => {
+      nav.classList.toggle("show");
+    });
   }
 
-  document.getElementById("profileName").innerText = data.name || "-";
-  document.getElementById("profileEmail").innerText = data.email || "-";
-  document.getElementById("profileDob").innerText = data.dob || "-";
-  document.getElementById("profilePassport").innerText = data.passport || "-";
-  document.getElementById("profileProgram").innerText = data.program || "-";
-  document.getElementById("profileCourse").innerText = data.course || "-";
-  document.getElementById("profileDuration").innerText = data.duration || "-";
+  // ========= SAVE PROFILE =========
+  const saveBtn = document.getElementById("saveProfile");
 
-  // ===== EDIT =====
-  editBtn.addEventListener("click", () => {
-    fields.forEach(id => {
-      const el = document.getElementById(id);
-      el.contentEditable = "true";
-      el.style.background = "#fff";
-      el.style.border = "1px solid #ccc";
-      el.style.padding = "4px";
+  if (saveBtn) {
+    saveBtn.addEventListener("click", () => {
+
+      const updatedName =
+        document.getElementById("firstName").value + " " +
+        document.getElementById("lastName").value;
+
+      user.name = updatedName.trim();
+      user.email = document.getElementById("email").value;
+
+      localStorage.setItem("studentData", JSON.stringify(user));
+
+      alert("Profile Updated Successfully");
+    });
+  }
+
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  /* ========= MENU DROPDOWN ========= */
+  const enrolledBtn = document.querySelector(".enrolled-toggle");
+  const dropdown = document.querySelector(".dropdown");
+
+  if (enrolledBtn && dropdown) {
+    enrolledBtn.addEventListener("click", function(e){
+      e.preventDefault();
+      dropdown.classList.toggle("open");
+    });
+  }
+
+  /* ========= CALENDAR ========= */
+  const calendarGrid = document.querySelector(".calendar-grid");
+  const monthTitle = document.querySelector(".calendar-header h2");
+
+  if(calendarGrid && monthTitle){
+
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth();
+
+    const monthNames = [
+      "January","February","March","April","May","June",
+      "July","August","September","October","November","December"
+    ];
+
+    monthTitle.textContent = monthNames[month] + " " + year;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+    calendarGrid.innerHTML = "";
+
+    days.forEach(day=>{
+      calendarGrid.innerHTML += `<div class="day-name">${day}</div>`;
     });
 
-    editBtn.style.display = "none";
-    saveBtn.style.display = "inline-block";
+    for(let i=0;i<firstDay;i++){
+      calendarGrid.innerHTML += `<div class="day-cell empty"></div>`;
+    }
+
+   for(let d=1; d<=totalDays; d++){
+
+  let cls = "day-cell";
+
+  if(
+    d === date.getDate() &&
+    month === new Date().getMonth() &&
+    year === new Date().getFullYear()
+  ){
+    cls += " today";
+  }
+
+  calendarGrid.innerHTML += `<div class="${cls}">${d}</div>`;
+}
+  }
+
+
+const navLinks = document.querySelectorAll(".nav-link");
+const sections = document.querySelectorAll(".content-section");
+
+navLinks.forEach(link => {
+  link.addEventListener("click", function(e) {
+    e.preventDefault();
+
+    const page = this.getAttribute("data-page");
+
+    sections.forEach(sec => sec.classList.remove("active"));
+    document.getElementById(page).classList.add("active");
   });
+});
 
-  // ===== SAVE =====
-  saveBtn.addEventListener("click", () => {
 
-    data.name = document.getElementById("profileName").innerText;
-    data.email = document.getElementById("profileEmail").innerText;
-    data.dob = document.getElementById("profileDob").innerText;
-    data.passport = document.getElementById("profilePassport").innerText;
-    data.program = document.getElementById("profileProgram").innerText;
-    data.course = document.getElementById("profileCourse").innerText;
-    data.duration = document.getElementById("profileDuration").innerText;
-
-    localStorage.setItem("studentData", JSON.stringify(data));
-
-    fields.forEach(id => {
-      const el = document.getElementById(id);
-      el.contentEditable = "false";
-      el.style.background = "transparent";
-      el.style.border = "none";
-    });
-
-    saveBtn.style.display = "none";
-    editBtn.style.display = "inline-block";
-
-    alert("Profile updated successfully ✅");
-  });
-
-  // ===== HOME =====
-  document.getElementById("homeBtn").addEventListener("click", () => {
-    window.location.href = "index.html";
-  });
-
-  // ===== LOGOUT =====
-  document.getElementById("logoutBtn").addEventListener("click", () => {
-    localStorage.clear();
-    window.location.href = "login.html";
-  });
 
 });
