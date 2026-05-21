@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     },
 
     dhm: {
-      duration: "1 Year",
+      duration: "6 Months",
       subjects: [
         "Food Production",
         "Food & Beverage Service",
